@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>钟佳洛 · 手机影像作品与画质观察</title>
+<meta name="description" content="钟佳洛的手机影像作品集与画质观察笔记：vivo X100 Ultra 实拍、Lightroom 后期，记录高动态范围、长焦解析力、暗部层次与色彩还原的实际表现。">
+<link rel="preload" as="image" href="thumbs/storm-city.jpg">
+<style>
+  :root{
+    --bg:#0b0c0f;
+    --bg2:#12141a;
+    --card:#15171e;
+    --line:#252932;
+    --ink:#e9ecf1;
+    --ink2:#a7aebb;
+    --ink3:#6f7784;
+    --accent:#d8a657;
+    --accent2:#5fb8a6;
+    --maxw:1180px;
+    --serif:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC",Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.75;font-size:15.5px;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 26px}
+
+  /* ---------- 顶栏 ---------- */
+  nav{
+    position:sticky;top:0;z-index:60;
+    background:rgba(11,12,15,.82);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+  nav .brand{font-family:var(--serif);font-size:16px;letter-spacing:.14em;color:var(--ink)}
+  nav .brand span{color:var(--accent)}
+  nav .links{display:flex;gap:24px;font-size:13px}
+  nav .links a{color:var(--ink2);text-decoration:none;letter-spacing:.06em;transition:.2s}
+  nav .links a:hover{color:var(--accent)}
+
+  /* ---------- 首屏 ---------- */
+  header.hero{
+    position:relative;display:flex;align-items:center;
+    min-height:clamp(400px,62vh,660px);
+    overflow:hidden;border-bottom:1px solid var(--line);
+  }
+  .hero-bg{
+    position:absolute;inset:0;
+    background:url("images/storm-city.jpg") center 42%/cover no-repeat;
+    filter:saturate(.92) brightness(.62);
+    transform:scale(1.03);
+  }
+  .hero-bg::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(11,12,15,.55) 0%,rgba(11,12,15,.78) 55%,var(--bg) 100%);
+  }
+  .hero-inner{position:relative;z-index:2;padding:74px 0 58px;width:100%}
+  .eyebrow{
+    font-size:12px;letter-spacing:.34em;color:var(--accent);
+    text-transform:uppercase;margin-bottom:22px;
+  }
+  h1{
+    font-family:var(--serif);font-weight:400;
+    font-size:clamp(38px,6.2vw,72px);line-height:1.16;letter-spacing:.02em;
+    margin-bottom:20px;
+  }
+  h1 em{font-style:normal;color:var(--accent)}
+  .lede{max-width:640px;color:var(--ink2);font-size:16.5px;line-height:1.9}
+  .lede b{color:var(--ink);font-weight:600}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px}
+  .chip{
+    border:1px solid var(--line);border-radius:999px;
+    padding:6px 15px;font-size:12.5px;color:var(--ink2);letter-spacing:.04em;
+    background:rgba(255,255,255,.02);
+  }
+  .chip b{color:var(--accent);font-weight:600}
+
+  /* ---------- 通用分区 ---------- */
+  section{padding:78px 0;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:0}
+  .sec-head{margin-bottom:38px}
+  .sec-head h2{
+    font-family:var(--serif);font-weight:400;font-size:29px;letter-spacing:.04em;
+    display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;
+  }
+  .sec-head h2 small{
+    font-family:var(--sans);font-size:11.5px;letter-spacing:.28em;
+    color:var(--ink3);text-transform:uppercase;
+  }
+  .sec-head p{color:var(--ink2);margin-top:12px;max-width:760px}
+
+  /* ---------- 说明卡片 ---------- */
+  .about-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px}
+  .about-card{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:24px 24px 22px;
+  }
+  .about-card h3{
+    font-size:14.5px;font-weight:600;color:var(--ink);margin-bottom:10px;
+    letter-spacing:.03em;
+  }
+  .about-card h3::before{
+    content:"";display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:var(--accent2);margin-right:10px;vertical-align:middle;
+  }
+  .about-card p{font-size:14px;color:var(--ink2);line-height:1.85}
+  .about-card p b{color:var(--ink)}
+
+  /* ---------- 画廊 ---------- */
+  .gallery{display:grid;gap:26px}
+  figure.shot{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;
+  }
+  figure.shot .ph{
+    position:relative;display:block;background:#000;cursor:zoom-in;line-height:0;
+  }
+  figure.shot .ph img{
+    width:100%;height:auto;display:block;max-height:74vh;object-fit:contain;
+    margin:0 auto;
+  }
+  figure.shot .ph::after{
+    content:"点击查看大图";position:absolute;right:14px;bottom:14px;
+    font-size:11.5px;letter-spacing:.08em;color:#fff;
+    background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.22);
+    padding:5px 11px;border-radius:999px;opacity:0;transition:.25s;line-height:1.6;
+  }
+  figure.shot .ph:hover::after{opacity:1}
+  figcaption{padding:22px 26px 24px}
+  .cap-top{display:flex;align-items:baseline;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:12px}
+  .cap-top h3{font-family:var(--serif);font-weight:400;font-size:21px;letter-spacing:.03em}
+  .exif{display:flex;gap:8px;flex-wrap:wrap}
+  .exif span{
+    font-size:11.5px;color:var(--ink3);border:1px solid var(--line);
+    border-radius:5px;padding:2px 9px;font-variant-numeric:tabular-nums;
+  }
+  .exif span b{color:var(--accent);font-weight:600}
+  .note{margin-top:6px}
+  .note li{
+    list-style:none;position:relative;padding-left:20px;margin-bottom:9px;
+    font-size:14.2px;color:var(--ink2);line-height:1.8;
+  }
+  .note li::before{
+    content:"";position:absolute;left:3px;top:11px;width:5px;height:5px;
+    background:var(--accent);border-radius:50%;opacity:.85;
+  }
+  .note li b{color:var(--ink);font-weight:600}
+
+  /* ---------- 表格 ---------- */
+  .spec{width:100%;border-collapse:collapse;margin-top:8px;font-size:14.2px}
+  .spec th,.spec td{
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--line);
+    vertical-align:top;
+  }
+  .spec th{color:var(--ink3);font-weight:500;width:190px;white-space:nowrap}
+  .spec td{color:var(--ink2)}
+  .spec td b{color:var(--ink);font-weight:600}
+  .spec tr:last-child th,.spec tr:last-child td{border-bottom:0}
+
+  /* ---------- 页脚 ---------- */
+  footer{padding:60px 0 76px}
+  footer .foot-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:34px}
+  footer h3{font-family:var(--serif);font-weight:400;font-size:20px;margin-bottom:14px}
+  footer p{color:var(--ink2);font-size:14.2px}
+  footer a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(216,166,87,.35)}
+  footer a:hover{border-bottom-color:var(--accent)}
+  .foot-note{margin-top:34px;padding-top:22px;border-top:1px solid var(--line);color:var(--ink3);font-size:12.5px}
+
+  /* ---------- 灯箱 ---------- */
+  .lb{
+    position:fixed;inset:0;z-index:200;background:rgba(6,7,9,.97);
+    display:none;align-items:center;justify-content:center;flex-direction:column;
+  }
+  .lb.on{display:flex}
+  .lb img{max-width:94vw;max-height:82vh;object-fit:contain;box-shadow:0 20px 70px rgba(0,0,0,.7)}
+  .lb .cap{margin-top:18px;font-size:13.5px;color:var(--ink2);letter-spacing:.05em;text-align:center;padding:0 20px}
+  .lb .cap b{color:var(--accent)}
+  .lb button{
+    position:absolute;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
+    color:#fff;font-size:19px;width:46px;height:46px;border-radius:50%;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:.2s;font-family:var(--sans);
+  }
+  .lb button:hover{background:rgba(255,255,255,.17)}
+  .lb .close{top:22px;right:24px}
+  .lb .prev{left:20px;top:50%;transform:translateY(-50%)}
+  .lb .next{right:20px;top:50%;transform:translateY(-50%)}
+  .lb .idx{position:absolute;top:30px;left:26px;font-size:12.5px;color:var(--ink3);letter-spacing:.16em}
+
+  @media (max-width:760px){
+    .wrap{padding:0 18px}
+    nav .links{display:none}
+    header.hero{min-height:clamp(360px,56vh,520px)}
+    section{padding:56px 0}
+    footer .foot-grid{grid-template-columns:1fr}
+    .spec th{width:auto;padding-right:8px}
+    figcaption{padding:18px 18px 20px}
+    .lb .prev{left:8px}.lb .next{right:8px}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">钟佳洛 <span>·</span> 手机影像</div>
+    <div class="links">
+      <a href="#about">观察方法</a>
+      <a href="#works">作品</a>
+      <a href="#spec">素材与说明</a>
+      <a href="#contact">联系</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-inner">
+    <div class="wrap">
+      <div class="eyebrow">Mobile Imaging · Portfolio</div>
+      <h1>用手机拍下的<br><em>画质观察笔记</em></h1>
+      <p class="lede">
+        这不是影集，是一份<b>「我在看什么」</b>的记录。每一张都写下我以为值得注意的地方——
+        高光有没有压住、暗部还有没有细节、长焦端是否开始涂抹、色彩和当天眼睛看到的差多少。
+        设备是 vivo X100 Ultra，后期用 Lightroom。
+      </p>
+      <div class="hero-meta">
+        <span class="chip">vivo X100 Ultra · 三摄全焦段</span>
+        <span class="chip">最长使用 <b>344mm</b> 等效焦距</span>
+        <span class="chip">Lightroom 后期</span>
+        <span class="chip">惠州 / 广州 实拍</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>我看照片的三个顺序 <small>How I look at an image</small></h2>
+      <p>看一张照片时，我会固定按同一个顺序检查，避免被"整体好看"带着走。这套顺序是做图像测试最基本的底子。</p>
+    </div>
+    <div class="about-grid">
+      <div class="about-card">
+        <h3>先看光有没有被压住</h3>
+        <p>高光区（天空、灯、太阳边缘）有没有过曝成一片死白；暗部（阴影、树、建筑背面）有没有变成纯黑。
+        <b>这两件事后期基本救不回来</b>，所以我放在最前面看。</p>
+      </div>
+      <div class="about-card">
+        <h3>再看细节经不经得起放大</h3>
+        <p>把图放大到 100%，看边缘线条是从清晰变糊，还是出现色边（紫边/绿边）、噪点和涂抹感。
+        长焦端和逆光场景最容易暴露这些问题。</p>
+      </div>
+      <div class="about-card">
+        <h3>最后看颜色像不像真的</h3>
+        <p>白平衡偏不偏、肤色是不是发黄发红、同一场景不同镜头切来切去时色彩有没有跳变。
+        <b>我后期调色，但调色之前我会先判断原片本身留下了什么。</b></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="works">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>作品与观察 <small>Selected works &amp; notes</small></h2>
+      <p>以下为我本人拍摄。点图可看大图。</p>
+    </div>
+
+    <div class="gallery">
+
+      <figure class="shot">
+        <a class="ph" href="images/storm-city.jpg" data-full="images/storm-city.jpg" data-idx="1">
+          <img src="images/storm-city.jpg" alt="暴风雨前后的城市天际线" loading="eager">
+        </a>
+        <figcaption>
+          <div class="cap-top">
+            <h3>暴风雨前后的城市</h3>
+            <div class="exif"><span>4096 × 2304</span><span>超大光比</span><span>Lightroom</span></div>
+          </div>
+          <ul class="note">
+            <li><b>我注意到什么：</b>左边那道光把整栋楼照成金色，同时头顶的云是近乎全黑的——<b>这两种亮度差了非常多</b>，
+              是典型的容易"顾此失彼"的场景。</li>
+            <li><b>我判断的重点：</b>金色天光里还留着云层的纹理而不是糊成一片白，暗部楼房也还能看出窗户和结构，
+              说明这一张<b>两头都没丢</b>。</li>
+            <li><b>可见的不足：</b>暗部提亮之后噪点会明显起来，仔细看云层过渡有一点颗粒感。</li>
+          </ul>
+        </figcaption>
+      </figure>
+
+      <figure class="shot">
+        <a class="ph" href="images/sun-on-ridge.jpg" data-full="images/sun-on-ridge.jpg" data-idx="2">
+          <img src="images/sun-on-ridge.jpg" alt="85mm 长焦拍摄的落日压在山脊线上" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="cap-top">
+            <h3>落日压在山脊线上</h3>
+            <div class="exif"><span>等效 <b>85mm</b></span><span>2900 × 3856</span><span>逆光 / 远距离</span></div>
+          </div>
+          <ul class="note">
+            <li><b>我注意到什么：</b>太阳刚好卡在山脊线上，边缘被山体"切"了一刀——<b>这种临界时刻最容易看出边缘解析力</b>，
+              也最容易出现色散。</li>
+            <li><b>我判断的重点：</b>太阳轮廓的边缘、山脊与天空交界的那条线是否干净；远处空气有雾霾，
+              我能接受清晰度下降，但不能接受出现明显色边。</li>
+            <li><b>关于曝光的一个坑：</b>这张画面上方大片是暗云，如果按"整张图看起来是亮的还是暗的"来调，
+              太阳的橙色很容易被调过头。所以我会<b>单独盯太阳边缘和山脊线那一条</b>来判断。</li>
+          </ul>
+        </figcaption>
+      </figure>
+
+      <figure class="shot">
+        <a class="ph" href="images/tele-sunset.jpg" data-full="images/tele-sunset.jpg" data-idx="3">
+          <img src="images/tele-sunset.jpg" alt="344mm 等效焦距拍摄的城市日落" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="cap-top">
+            <h3>窗外的日落</h3>
+            <div class="exif"><span>等效 <b>344mm</b></span><span>50MP 全像素</span><span>大光比</span></div>
+          </div>
+          <ul class="note">
+            <li><b>我注意到什么：</b>用了很长的等效焦距，画面被强烈压缩，电塔、屋顶、山脉被叠在一起。</li>
+            <li><b>我判断的重点：</b>长焦 + 大光比是最难的一组——天空橙得很饱和，但地面的楼房、树、排水管
+              <b>都还得能看出结构</b>，不能变成剪影。</li>
+            <li><b>可见的不足：</b>画面左侧有一道前景遮挡（窗框），构图上是瑕疵；另外地面暗部提亮后能看出噪点。</li>
+          </ul>
+        </figcaption>
+      </figure>
+
+      <figure class="shot">
+        <a class="ph" href="images/canton-tower.jpg" data-full="images/canton-tower.jpg" data-idx="4">
+          <img src="images/canton-tower.jpg" alt="14mm 超广角拍摄的广州塔黑白作品" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="cap-top">
+            <h3>超广角下的广州塔</h3>
+            <div class="exif"><span>等效 <b>14mm</b></span><span>5770 × 7694</span><span>黑白处理</span></div>
+          </div>
+          <ul class="note">
+            <li><b>我注意到什么：</b>超广角带来很强的透视拉伸，顶棚格栅形成引导线，塔身网格是密集的重复细节。</li>
+            <li><b>我判断的重点：</b>这种密集网格是<b>检验解析力的很好素材</b>——网格线条是根根分明还是糊成一片灰；
+              天空大面积单色时，<b>有没有出现噪点或色阶断层（banding）</b>。</li>
+            <li><b>为什么做成黑白：</b>去掉颜色之后，只剩下明暗和细节，画面里任何涂抹和噪点都会更明显，
+              我反而更容易看清问题。</li>
+          </ul>
+        </figcaption>
+      </figure>
+
+      <figure class="shot">
+        <a class="ph" href="images/crimson-dusk.jpg" data-full="images/crimson-dusk.jpg" data-idx="5">
+          <img src="images/crimson-dusk.jpg" alt="深红与橙的日落云层" loading="lazy">
+        </a>
+        <figcaption>
+          <div class="cap-top">
+            <h3>深红的云层</h3>
+            <div class="exif"><span>3414 × 1706</span><span>日落 / 弱光</span><span>降饱和处理</span></div>
+          </div>
+          <ul class="note">
+            <li><b>我注意到什么：</b>云的层次本身很丰富，从紫到橙到红，但如果直接拉饱和度，颜色会糊成一团、很难看。</li>
+            <li><b>我判断的重点：</b>色彩过渡段有没有出现<b>色块和断层</b>——大面积渐变最考验这一点。</li>
+            <li><b>我的处理方向：</b>降饱和 + 单独提亮红色区域的层次，让云看起来是一层一层的，而不是一大块红。</li>
+          </ul>
+        </figcaption>
+      </figure>
+
+    </div>
+  </div>
+</section>
+
+<section id="spec">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>素材与说明 <small>Files &amp; notes</small></h2>
+      <p>如果贵司需要，我可以提供对应的原片与调色前版本做参考。</p>
+    </div>
+    <table class="spec">
+      <tr><th>拍摄设备</th><td><b>vivo X100 Ultra</b>（主摄 / 长焦 / 超广角全焦段），日常主力机</td></tr>
+      <tr><th>焦距覆盖</th><td>最广 <b>14mm</b> 等效（超广角）到最长 <b>344mm</b> 等效；另有 <b>85mm</b> 等效的长焦作品</td></tr>
+      <tr><th>后期工具</th><td><b>Lightroom</b>（曝光、高光与阴影恢复、白平衡与色温、对比度、清晰度与降噪、色彩分级）；<b>剪映</b>（视频剪辑）</td></tr>
+      <tr><th>拍摄题材</th><td>城市与建筑、日落与天空、逆光与弱光、大光比场景；以风景与日常纪实为主</td></tr>
+      <tr><th>可提供的素材</th><td><b>原始分辨率照片</b>、<b>调色前 / 调色后对比</b>、同一场景不同焦段的成组照片</td></tr>
+      <tr><th>作品发布</th><td>抖音账号 <b>Think2Much</b>，持续发布手机摄影与调色作品，多作品综合点赞数约 400</td></tr>
+      <tr><th>关于本页 EXIF</th><td>所用照片经厂商套件导出，<b>快门 / 光圈 / ISO 信息已被清除</b>，仅等效焦距得以保留，因此本页只标注可核实的参数，不作推测</td></tr>
+    </table>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <h3>钟佳洛</h3>
+        <p>
+          广东白云学院 · 计算机科学与技术（本科在读，2027 届）<br>
+          求职方向：<b>图像测试 / 软件测试实习生</b> · 惠州本地，可立即到岗<br>
+          邮箱：<a href="mailto:2250035091@qq.com">2250035091@qq.com</a>
+        </p>
+        <div class="foot-note">
+          说明：本站为我个人拍摄与调色的作品整理，非商业用途。页面图片已压缩以适配网页，原片分辨率更高，可按需提供。
+        </div>
+      </div>
+      <div>
+        <h3>本站想说明什么</h3>
+        <p>
+          我希望展示的不是"我会调色"，而是<b>我会去看一张照片拍得怎么样</b>——
+          高光、暗部、解析力、色散、白平衡、色彩过渡，这些是我在看图时会固定检查的项。
+          这也是我想做图像测试的原因。
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="lb" id="lb">
+  <span class="idx" id="lbIdx"></span>
+  <button class="close" id="lbClose" aria-label="关闭">✕</button>
+  <button class="prev" id="lbPrev" aria-label="上一张">‹</button>
+  <img id="lbImg" src="" alt="">
+  <button class="next" id="lbNext" aria-label="下一张">›</button>
+  <div class="cap" id="lbCap"></div>
+</div>
+
+<script>
+(function(){
+  var shots = Array.prototype.slice.call(document.querySelectorAll('figure.shot'));
+  var data = shots.map(function(f){
+    return {
+      src: f.querySelector('.ph').getAttribute('data-full'),
+      title: f.querySelector('h3').textContent.trim(),
+      exif: Array.prototype.map.call(f.querySelectorAll('.exif span'), function(s){ return s.textContent.trim(); })
+    };
+  });
+  var lb = document.getElementById('lb'),
+      img = document.getElementById('lbImg'),
+      cap = document.getElementById('lbCap'),
+      idxEl = document.getElementById('lbIdx'),
+      cur = 0;
+
+  function show(i){
+    cur = (i + data.length) % data.length;
+    var d = data[cur];
+    img.src = d.src;
+    cap.innerHTML = '<b>' + d.title + '</b>' + (d.exif.length ? '　·　' + d.exif.join('　·　') : '');
+    idxEl.textContent = (cur + 1) + ' / ' + data.length;
+    lb.classList.add('on');
+    document.body.style.overflow = 'hidden';
+  }
+  function hide(){
+    lb.classList.remove('on');
+    document.body.style.overflow = '';
+    img.src = '';
+  }
+
+  shots.forEach(function(f, i){
+    f.querySelector('.ph').addEventListener('click', function(e){
+      e.preventDefault();
+      show(i);
+    });
+  });
+  document.getElementById('lbClose').addEventListener('click', hide);
+  document.getElementById('lbPrev').addEventListener('click', function(e){ e.stopPropagation(); show(cur - 1); });
+  document.getElementById('lbNext').addEventListener('click', function(e){ e.stopPropagation(); show(cur + 1); });
+  lb.addEventListener('click', function(e){ if (e.target === lb) hide(); });
+  document.addEventListener('keydown', function(e){
+    if (!lb.classList.contains('on')) return;
+    if (e.key === 'Escape') hide();
+    if (e.key === 'ArrowLeft') show(cur - 1);
+    if (e.key === 'ArrowRight') show(cur + 1);
+  });
+})();
+</script>
+</body>
+</html>
