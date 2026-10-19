@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>提示词调试与效果验证 · 案例集</title>
+<meta name="description" content="AI 应用「冰箱食材管家」的提示词调试与效果验证记录：三个真实案例的定位过程、改法与结论，以及 28 个测试用例清单。">
+<style>
+  :root{
+    --bg:#0b0c0f; --card:#15171e; --line:#252932;
+    --ink:#e9ecf1; --ink2:#a7aebb; --ink3:#6f7784;
+    --ok:#4fbf8b; --bad:#e0715f; --accent:#d8a657; --accent2:#5fb8a6;
+    --serif:"Songti SC","STSong","Noto Serif SC","Source Han Serif SC",Georgia,serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.78;font-size:15.5px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 26px}
+
+  nav{position:sticky;top:0;z-index:60;background:rgba(11,12,15,.85);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;height:56px}
+  nav .brand{font-family:var(--serif);font-size:15.5px;letter-spacing:.12em}
+  nav .brand span{color:var(--accent)}
+  nav .links{display:flex;gap:22px;font-size:13px}
+  nav .links a{color:var(--ink2);text-decoration:none;transition:.2s}
+  nav .links a:hover{color:var(--accent)}
+
+  header.hero{padding:72px 0 54px;border-bottom:1px solid var(--line);
+    background:radial-gradient(900px 340px at 15% 0%, rgba(95,184,166,.10), transparent 70%)}
+  .eyebrow{font-size:12px;letter-spacing:.32em;color:var(--accent2);text-transform:uppercase;margin-bottom:20px}
+  h1{font-family:var(--serif);font-weight:400;font-size:clamp(30px,4.6vw,46px);line-height:1.25;letter-spacing:.02em;margin-bottom:18px}
+  h1 em{font-style:normal;color:var(--accent)}
+  .lede{max-width:720px;color:var(--ink2);font-size:16px}
+  .lede b{color:var(--ink)}
+  .meta{display:flex;flex-wrap:wrap;gap:9px;margin-top:26px}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:5px 14px;font-size:12.5px;color:var(--ink2);background:rgba(255,255,255,.02)}
+  .chip b{color:var(--accent)}
+
+  section{padding:58px 0;border-bottom:1px solid var(--line)}
+  section:last-of-type{border-bottom:0}
+  .sec-head{margin-bottom:30px}
+  .sec-head h2{font-family:var(--serif);font-weight:400;font-size:26px;letter-spacing:.03em;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .sec-head h2 small{font-family:var(--sans);font-size:11.5px;letter-spacing:.24em;color:var(--ink3);text-transform:uppercase}
+  .sec-head p{color:var(--ink2);margin-top:10px;max-width:760px;font-size:14.6px}
+
+  /* 案例卡 */
+  .case{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:28px 30px;margin-bottom:26px}
+  .case-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
+  .case-no{font-family:var(--serif);font-size:13px;color:var(--accent);letter-spacing:.2em;border:1px solid rgba(216,166,87,.4);border-radius:4px;padding:1px 8px}
+  .case h3{font-size:19px;font-weight:600;letter-spacing:.02em}
+  .case .tags{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 18px}
+  .tag{font-size:11.5px;color:var(--ink3);border:1px solid var(--line);border-radius:4px;padding:1px 8px}
+  .tag.hot{color:var(--bad);border-color:rgba(224,113,95,.45)}
+
+  .step{margin:18px 0}
+  .step-label{font-size:12px;letter-spacing:.18em;color:var(--accent2);text-transform:uppercase;margin-bottom:8px}
+  .step p{color:var(--ink2);font-size:14.4px}
+  .step p b{color:var(--ink)}
+
+  /* before / after 对比 */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+  .pane{border-radius:10px;padding:16px 18px;border:1px solid var(--line);background:#101218}
+  .pane.bad{border-color:rgba(224,113,95,.35);background:rgba(224,113,95,.05)}
+  .pane.good{border-color:rgba(79,191,139,.35);background:rgba(79,191,139,.05)}
+  .pane h4{font-size:12px;letter-spacing:.16em;text-transform:uppercase;margin-bottom:10px;font-weight:600}
+  .pane.bad h4{color:var(--bad)}
+  .pane.good h4{color:var(--ok)}
+  .pane pre{font-family:Consolas,Monaco,"Courier New",monospace;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word;color:var(--ink2)}
+  .pane .out{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);font-size:13.6px}
+  .pane .out b{font-family:Consolas,monospace;font-size:13.4px}
+  .pane.bad .out b{color:var(--bad)}
+  .pane.good .out b{color:var(--ok)}
+
+  .takeaway{border-left:3px solid var(--accent);background:rgba(216,166,87,.06);border-radius:0 8px 8px 0;padding:14px 18px;margin-top:18px}
+  .takeaway .t{font-size:12px;letter-spacing:.16em;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+  .takeaway p{color:var(--ink);font-size:14.4px}
+
+  /* 复测表 */
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.8px}
+  th,td{text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--ink3);font-weight:500;font-size:12.5px;letter-spacing:.06em;background:rgba(255,255,255,.02)}
+  td{color:var(--ink2)}
+  td b{color:var(--ink)}
+  td.ok{color:var(--ok)}
+  td.bad{color:var(--bad)}
+
+  /* 用例清单 */
+  .tests{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .testbox{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+  .testbox h4{font-size:14.5px;font-weight:600;margin-bottom:4px}
+  .testbox .count{font-size:12px;color:var(--accent);letter-spacing:.1em;margin-bottom:12px}
+  .testbox ul{list-style:none;display:flex;flex-wrap:wrap;gap:6px}
+  .testbox li{font-size:12.6px;color:var(--ink2);border:1px solid var(--line);border-radius:4px;padding:2px 8px;background:rgba(255,255,255,.02)}
+
+  /* 规范清单 */
+  ol.rules{list-style:none;counter-reset:r}
+  ol.rules li{counter-increment:r;position:relative;padding-left:44px;margin-bottom:16px;color:var(--ink2);font-size:14.6px}
+  ol.rules li::before{
+    content:counter(r,decimal-leading-zero);position:absolute;left:0;top:1px;
+    font-family:var(--serif);font-size:13px;color:var(--accent);
+    border:1px solid rgba(216,166,87,.4);border-radius:4px;width:30px;height:24px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  ol.rules li b{color:var(--ink)}
+
+  footer{padding:46px 0 66px;color:var(--ink3);font-size:13.4px}
+  footer a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(216,166,87,.35)}
+  footer a:hover{border-bottom-color:var(--accent)}
+
+  @media (max-width:820px){
+    .compare,.tests{grid-template-columns:1fr}
+    .case{padding:22px 20px}
+    nav .links{display:none}
+    section{padding:44px 0}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">钟佳洛 <span>·</span> 提示词调试案例</div>
+    <div class="links">
+      <a href="#case1">案例一</a>
+      <a href="#case2">案例二</a>
+      <a href="#case3">案例三</a>
+      <a href="#tests">测试用例</a>
+      <a href="#rules">沉淀的规范</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">Prompt Debugging &amp; Effect Validation</div>
+    <h1>一个 AI 应用的<br><em>提示词调试记录</em></h1>
+    <p class="lede">
+      这不是「我调过提示词」，而是<b>三个真实案例的完整定位过程</b>：现象是什么、怎么判断问题出在哪、
+      改了什么、改完怎么验证、最后沉淀成什么结论。
+      项目是一个能跑的 AI 应用——用户用文字或拍照告诉我有什么食材，它推荐菜谱、算营养、校验过敏原。
+    </p>
+    <div class="meta">
+      <span class="chip">Python 3.12 / DeepSeek API</span>
+      <span class="chip"><b>28</b> 个测试用例</span>
+      <span class="chip"><b>3</b> 个典型问题</span>
+      <span class="chip">累计定位 <b>11</b> 类问题</span>
+    </div>
+  </div>
+</header>
+
+<section id="case1">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>案例一：提示词给了模型一个「放弃」的出口 <small>Case 01</small></h2>
+      <p>这是我最想讲的一个案例——因为定位它靠的不是技术，而是一个对照实验。</p>
+    </div>
+
+    <div class="case">
+      <div class="case-head">
+        <span class="case-no">01</span>
+        <h3>现象：清晰的图，模型却说「无法识别」</h3>
+      </div>
+      <div class="tags">
+        <span class="tag hot">提示词问题</span>
+        <span class="tag">模型没坏</span>
+        <span class="tag">对照实验</span>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Situation 现象</div>
+        <p>用户发一张「西红柿炒鸡蛋」的示意图，模型返回四个字：<b>无法识别</b>。图很清晰，人一眼就能认出来。</p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Task 任务</div>
+        <p>先回答一个问题：<b>是模型看不了图，还是我的用法有问题？</b>不能急着换模型，换模型可能白花钱还不解决问题。</p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Action 行动 · 做对照实验</div>
+        <p>不动任何配置，只把提问换成中性问题：「这张图主要是什么颜色？」——同一个模型、同一张图。</p>
+        <div class="compare">
+          <div class="pane bad">
+            <h4>原始提问</h4>
+            <pre>请只输出图里能看清的食材名称。
+如果看不清或没有食材，
+只输出四个字：无法识别</pre>
+            <div class="out">模型回答：<b>无法识别</b></div>
+          </div>
+          <div class="pane good">
+            <h4>中性对照提问</h4>
+            <pre>这张图主要是什么颜色？</pre>
+            <div class="out">模型回答：<b>红黄绿</b></div>
+          </div>
+        </div>
+        <p>
+          图是传过去了、模型也看到了。再问「有哪些食材」，它给出了「红肉块、土豆块、南瓜块、葱花」。
+          <b>所以是我的提示词把模型的嘴堵上了。</b>
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">根因 · 我犯的具体错误</div>
+        <p>
+          我在提示词里写了「看不清就只输出：无法识别」，本意是稳妥，实际等于
+          <b>给了模型一个廉价的逃生出口</b>——面对有歧义的图，它倾向于选那个被明确允许的安全答案。
+          这不是模型笨，是我在鼓励它偷懒。
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Action 行动 · 改提示词</div>
+        <div class="compare">
+          <div class="pane bad">
+            <h4>改之前</h4>
+            <pre>如果看不清或没有食材，
+只输出四个字：无法识别</pre>
+          </div>
+          <div class="pane good">
+            <h4>改之后</h4>
+            <pre>食材：&lt;中文顿号分隔，尽量给出最可能的判断&gt;
+把握：&lt;高 或 中 或 低&gt;
+即使图片不够清晰，也要给出你的最佳猜测。</pre>
+            <div class="out">同一张图回答：<b>番茄、鸡蛋、葱（把握：高）</b></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="takeaway">
+        <div class="t">Result 结论（已沉淀为模板）</div>
+        <p><b>不要在提示词里给模型一个便宜的「我做不到」出口，要给它「尽力而为 + 标注置信度」的出口。</b>
+        不确定性不该被藏起来，而应该显式地传出来，由上层流程决定怎么处理（比如请用户确认）。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="case2">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>案例二：输出「看起来合理」但有危害 <small>Case 02</small></h2>
+      <p>这个案例让我意识到：<b>最危险的 bug 是不报错的那种。</b></p>
+    </div>
+
+    <div class="case">
+      <div class="case-head">
+        <span class="case-no">02</span>
+        <h3>海鲜过敏的用户，被推荐了「清蒸鲈鱼」</h3>
+      </div>
+      <div class="tags">
+        <span class="tag hot">安全类偏差</span>
+        <span class="tag">不报错</span>
+        <span class="tag">需求理解错误</span>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Situation 现象</div>
+        <p>输入：「我有虾仁和西兰花，<b>但我海鲜过敏</b>，能吃啥？」</p>
+        <p>系统识别出的食材是：<b>虾仁、鲈鱼、三文鱼、西兰花</b> —— 多出来两个海鲜。最后给一个说自己海鲜过敏的人，推荐了<b>清蒸鲈鱼</b>。</p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">为什么这个偏差特别危险</div>
+        <p>
+          <b>程序不报错、输出看起来还很合理</b>——鲈鱼确实是海鲜、确实能做菜。
+          只有懂业务规则的人才能一眼看出问题，机器自己发现不了。
+          如果是真实用户，这不是体验问题，是可能进医院的问题。
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">根因 · 两层错</div>
+        <p>
+          ① 品类表里「海鲜」被定义成 <code>[虾仁, 鲈鱼, 三文鱼]</code>，用户说「海鲜<b>过敏</b>」时，
+          代码判断「海鲜」这个词出现在句子里，就把这三个全当成了<b>用户手上的食材</b>；
+          ② 同义词表里有「鱼 → 鲈鱼」，「海鲜过敏」这句话里有「鱼」字，<b>又匹配出一次鲈鱼</b>。
+        </p>
+        <p>
+          本质问题是：<b>我完全没有区分「用户有什么」和「用户不能吃什么」。</b>
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Action 改法 · 加否定语境判断</div>
+        <p>
+          引入<b>否定检测</b>：食材名如果出现在「过敏 / 不吃 / 不能吃」这类否定词的<b>同一个分句</b>里，
+          就不算用户有的食材。同时检查<b>前置否定</b>（「不吃香菜」）和<b>后置否定</b>（「海鲜过敏」）——
+          中文里「海鲜过敏」比「过敏海鲜」常见得多，只查一边会漏。
+        </p>
+        <p>改的过程中还踩了两个小坑：否定窗口开太大跨过了逗号、误杀了用户真有的「西兰花」；只查前置否定、漏了后置否定。</p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Result 复测（4 组典型输入）</div>
+        <table>
+          <tr><th>输入</th><th>改前抽出</th><th>改后抽出</th></tr>
+          <tr><td>我有虾仁和西兰花，但我海鲜过敏</td><td class="bad">虾仁、鲈鱼、三文鱼、西兰花</td><td class="ok">西兰花、虾仁</td></tr>
+          <tr><td>我对花生过敏，有鸡蛋和西红柿</td><td class="bad">花生（误判为库存）+ 鸡蛋、西红柿</td><td class="ok">西红柿、鸡蛋</td></tr>
+          <tr><td>不吃香菜，有土豆和青椒</td><td class="bad">香菜 + 土豆、青椒</td><td class="ok">土豆、青椒</td></tr>
+          <tr><td>海鲜过敏</td><td class="bad">虾仁、鲈鱼、三文鱼</td><td class="ok">（空）</td></tr>
+        </table>
+      </div>
+
+      <div class="takeaway">
+        <div class="t">Result 结论</div>
+        <p>
+          <b>① 安全和体验冲突时，永远选安全。</b>我的判定偏向「只要有任意一次没被否定的出现就算用户有」——
+          误判成「没有」最多少推荐一道菜，误判成「有」可能让人进医院。<br>
+          <b>② 这类 bug 不报错，必须靠回归用例焊死。</b>修完后我补了一条断言：「海鲜过敏」不能抽出任何海鲜。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="case3">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>案例三：有些问题不是 bug，不能靠改代码解决 <small>Case 03</small></h2>
+      <p>这个案例教我的事：<b>分清「模型能力不足」和「我的问题」，比修 bug 更重要。</b></p>
+    </div>
+
+    <div class="case">
+      <div class="case-head">
+        <span class="case-no">03</span>
+        <h3>同一张图、同一模型，三次给出三份不同的食材清单</h3>
+      </div>
+      <div class="tags">
+        <span class="tag">模型固有不确定性</span>
+        <span class="tag">不是 bug</span>
+        <span class="tag">用流程兜底</span>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Situation 现象</div>
+        <p>
+          带照片提问时：第 1 轮识别出「西红柿、鸡蛋、小葱」，请用户确认；用户说「对的，就这些」；
+          结果第 2 轮模型说「那就按<b>土豆</b> + 西红柿来配」—— <b>土豆是哪来的？用户刚确认过的清单被改掉了。</b>
+        </p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Action 排查 · 先排除自己的问题</div>
+        <table>
+          <tr><th>检查项</th><th>结果</th></tr>
+          <tr><td>单独测分词器 <code>extract("番茄、鸡蛋、葱")</code></td><td class="ok">返回正确：西红柿、鸡蛋、小葱</td></tr>
+          <tr><td>打印视觉模型逐轮原始输出</td><td class="bad">三次三份清单</td></tr>
+        </table>
+        <p>逐轮看模型原始输出：</p>
+        <table>
+          <tr><th>调用</th><th>模型返回</th></tr>
+          <tr><td>第 1 次</td><td>番茄、鸡蛋、葱（把握：高）</td></tr>
+          <tr><td>第 2 次</td><td>红甜椒、黄甜椒、葱花或香菜碎、番茄、土豆、菠萝（把握：低）</td></tr>
+          <tr><td>第 3 次</td><td>又是另一份</td></tr>
+        </table>
+        <p><b>「土豆」是模型自己说的，我的代码一个字都没错。</b>这是模型对模糊图像固有的不确定性，换个模型也只是程度不同。</p>
+      </div>
+
+      <div class="step">
+        <div class="step-label">Action 处理 · 不修代码，改产品流程</div>
+        <p>
+          技术消除不了这个不确定性，所以在产品层面加一道<b>「识别结果请用户确认」</b>：
+          用户花 3 秒确认，换来的是系统不会拿着错误的前提一路推下去。
+          并且在提示词里明确写：<b>用户确认过的清单要牢牢记住，后续不要重新识别</b>。
+        </p>
+      </div>
+
+      <div class="takeaway">
+        <div class="t">Result 结论（这个项目最大的收获）</div>
+        <p>
+          <b>能用代码解决的用代码，代码解决不了的用流程，流程也兜不住的用交互。</b>
+          三个案例正好是这三层：<br>
+          案例二 = <b>代码层</b>（加否定检测）；案例一的提示词问题 = <b>流程层</b>（把软约束写成显式规则）；
+          案例三 = <b>交互层</b>（让用户确认）。
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tests">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>28 个测试用例 <small>Test Suite</small></h2>
+      <p>把「推荐得准不准」这种主观感觉，拆成可以判定对错的断言。分两类：一类查<b>数据一致性</b>，一类查<b>行为回归</b>。</p>
+    </div>
+
+    <div class="tests">
+      <div class="testbox">
+        <h4>抽取与查询理解</h4>
+        <div class="count">12 个</div>
+        <ul>
+          <li>最基本的食材抽取</li>
+          <li>同义词要能归一化</li>
+          <li>品类词要能展开</li>
+          <li>能剥掉用量数字</li>
+          <li>忌口食材不能进库存</li>
+          <li>品类否定 · 海鲜过敏</li>
+          <li>前缀否定</li>
+          <li>不能吃虾</li>
+          <li>否定不能跨分句误伤</li>
+          <li>重复食材只算一次</li>
+          <li>空输入不炸</li>
+          <li>没有食材的句子</li>
+        </ul>
+      </div>
+      <div class="testbox">
+        <h4>检索、排序与过滤</h4>
+        <div class="count">16 个</div>
+        <ul>
+          <li>时间过滤</li>
+          <li>难度过滤</li>
+          <li>纯素过滤</li>
+          <li>分类过滤</li>
+          <li>过滤条件互斥时返回空而不是报错</li>
+          <li>食材全匹配的菜要排在前面</li>
+          <li>用上更多食材的菜优先</li>
+          <li>完全匹配的两样食材要排最前</li>
+          <li>有库存时不能推一样都用不上的菜</li>
+          <li>缺料要如实报告</li>
+          <li>关键词检索生效</li>
+          <li>无库存时退化为纯文本检索</li>
+          <li>相同输入结果稳定</li>
+          <li>虾仁是海鲜</li>
+          <li>蚝油里的海鲜只算痕量而不是实锤</li>
+          <li>北豆腐含大豆</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="takeaway" style="margin-top:24px">
+      <div class="t">批量测试的真正价值</div>
+      <p>我调过三次排序权重。每次改完跑一遍脚本，就知道有没有把效果调坏——
+      <b>没有批量测试，只能靠肉眼一条条看，改一次心虚一次。</b>有了它，你敢改。</p>
+    </div>
+  </div>
+</section>
+
+<section id="rules">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>从这些案例里沉淀的 5 条规范 <small>Prompt Spec</small></h2>
+      <p>这些是我自己踩坑总结出来的，也是我认为可以直接复用到别的 AI 产品上的部分。</p>
+    </div>
+    <ol class="rules">
+      <li><b>不给「我做不到」的出口。</b>把「看不清就输出无法识别」换成「尽力判断 + 标注置信度」，模型立刻愿意干活。</li>
+      <li><b>确定性的事交给代码，模糊理解才交给模型。</b>算营养、判过敏这类「算错会出事且有唯一答案」的事，不能给概率模型做。</li>
+      <li><b>不确定性要显式标出来，不要藏着。</b>让模型输出把握程度，由流程决定要不要请用户确认。</li>
+      <li><b>安全约束要写成显式规则 + 代码兜底。</b>提示词是软约束，模型可能不遵守；安全相关的必须有硬性路径。</li>
+      <li><b>每条提示词改动都要有回归用例兜住。</b>否则改一处坏一处，而且你不会发现。</li>
+    </ol>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    钟佳洛 · 计算机科学与技术（本科在读，2027 届）　|　
+    邮箱 <a href="mailto:2250035091@qq.com">2250035091@qq.com</a>　|　
+    <a href="../">返回作品集首页</a>
+    <p style="margin-top:12px">本页所有案例均来自个人项目「冰箱食材管家」的真实开发过程，非虚构。</p>
+  </div>
+</footer>
+
+</body>
+</html>
